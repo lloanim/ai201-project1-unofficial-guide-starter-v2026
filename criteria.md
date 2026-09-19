@@ -25,6 +25,7 @@ contains the answer.
 **Why this target:**
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
+My price matching question does not contain the word textbook, but the only document that answers it is about textbooks and spends half of the document talking about library reserve copies. The other four answers are stated in documents whose titles match the question directly, so I expect those to pass and this one to be hard. 
 
 ---
 
@@ -35,6 +36,7 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
+In `generate.py` the grounding instructions tells the model to name the documents the answer came from. If it misses any it would be because the model ignored the line rather than the filename not being available. 
 
 ---
 
@@ -52,6 +54,7 @@ in at least 4 of 5 tries.
 **Why this target:**
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
+Four of the five questions have no relevance to the campus corpus so I expect the gate to be able to catch them. The fifth would be the one that asks about ibuprofen dosage which has connection to the health_center.txt document but it does not contain any information on medications. That is the one I expect to land closest to the cutoff. 
 
 ---
 
@@ -69,11 +72,11 @@ in at least 4 of 5 tries.
        - "No chunk is shorter than 200 characters, since anything below that
           in my corpus turned out to be a heading with no content under it." -->
 
-
+Every chunk begins with its document's title line.
 
 **Why this target:**
 
-
+Every document in the corpus has the same structure of a title line, a blank line, and then two or three short paragraphs. I say every chunk because it either holds for all of them or none. It matters because the answers to every one of my five test questions is in the body, not in the title line, and the body paragraph holding it often does not repeat the topic word. Like in the `transit_stuttle.txt` where the answer says "the published timetables is optimistic by about five minutes" and does not mention "shuttle". Also the `admin_study_abroad.txt` says "the financial aid package travels with you" and not "abroad". Both words exist only in the title line. 
 
 ---
 
@@ -87,11 +90,11 @@ in at least 4 of 5 tries.
      present — anything, as long as it names a number or an observable
      outcome. -->
 
-
+For at least 4 of 5 questions, the system's final answer contains the question's expects string, not just the retrieved chunks.
 
 **Why this target:**
 
-
+The first criterion checks that the right chunk came back. In this criterion it checks that the fact survives generation. The model can retrieve the textbook document and still write that "the store offers price matching" without saying ask at the counter. I set it at 4 of 5 rather than 5 because short expects like "210", "no penalty", and "five minutes" are most likely to be reproduced exactly, whereas "travels with you" and "ask at the counter" can be paraphrased while still answering the question correctly. So I expect one of those to miss on the wording rather than substance. 
 
 ---
 
