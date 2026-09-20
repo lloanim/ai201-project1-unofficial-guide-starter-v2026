@@ -131,9 +131,19 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
 **Question:**
 
+How accurate is the campus stuttle timetable?
+
 **Answer:**
 
 ```
+python app.py ask "How accurate is the campus stuttle timetable?"
+  (best distance 0.482, cutoff 0.65)
+
+According to transit_shuttle.txt, the published timetable is optimistic by about five minutes in the morning and accurate the rest of the day.
+
+Sources retrieved: course_cs_210.txt, transit_shuttle.txt, transit_walking.txt
+
+1 model calls this session, 468 tokens (439 in, 29 out)
 ```
 
 **My relevance cutoff:**
@@ -147,9 +157,26 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
      Milestone 4. -->
 
+I set on 0.65 for relevance cutoff.
+
+My five questions landed between 0.2170 and 0.4844. The five out-of-scope ones landed between 0.8246 and 0.9340. Nothing landed in between, so the gap is 0.34 wide and I put the cutoff in the middle of it: (0.4844 + 0.8246) / 2 = 0.6545, rounded to 0.65. That leaves about 0.17 of room on each side, so a real question would have to come back noticeably worse than my worst one before the gate wrongly refused it, and an out-of-scope question would have to come back noticeably better before it slipped through.
+
+The gap is wide enough that anything from roughly 0.52 to 0.78 would score the same 5 of 5 both ways on these ten questions. I went with the midpoint because I have no reason to lean toward refusing over answering or the other way round, and the ten numbers I have are a sample, not every question the system will ever get.
+
+I set top_k = 3 because after the third chunk there was a clear difference in distance. For example, the first question in chart has third chunk distance as 0.5426 and the fourth chunk as 0.6510. It was a pattern I saw on the other 4 questions so I found it best to keep the top_k at a lower number than 4 or 5. 
+
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| Is there a penalty for declaring my major late? | Yes | 0.2170 |
+| Which group study rooms have whiteboards that actually erase? | Yes | 0.3436 |
+| How accurate is the campus shuttle timetable? | Yes | 0.4116 |
+| Can my financial aid help cover the costs of studying abroad? | Yes | 0.4698 |
+| What do I neeed to do to get the campus store to match a lower price? | Yes | 0.4844 |
+| What is the capital of Mongolia? | No | 0.8246 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
+| Who won the 1994 World Cup? | No | 0.8859 |
+| How do I write a for loop in Rust? | No | 0.8960 |
+| How do I change the oil in a diesel engine? | No | 0.9340 |
 
 ## How I Used AI
 
