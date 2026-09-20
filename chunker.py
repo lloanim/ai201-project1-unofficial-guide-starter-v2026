@@ -96,8 +96,31 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
       - Is the useful information in one sentence, or spread over a paragraph?
       - Would splitting on paragraph breaks keep more thoughts intact than
         splitting on a character count?
+
+    What I went with: one post, one chunk.
+
+    These documents are short posts in total 88 of them. The median is 309
+    characters with the longest being 549. Nothing is close to needing a split.
+
     """
-    return fallback_split(documents)
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        text = doc.text.strip()
+        if not text:
+            continue
+
+        chunks.append(
+            Chunk(
+                text=text,
+                source=doc.source,
+                index=0,
+                produced_by="chunker.py::split_documents",
+            )
+        )
+
+    return chunks
+
 
 
 def describe(chunks: list[Chunk]) -> str:

@@ -29,8 +29,23 @@
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** one document - no fixed character count (317 characters on average, shortest 178, longest 549)
+
+Every document in the corpus is a title line, a blank line, then two or three short paragraphs with one or two sentences each. Each chunk keeps its document's title line, because the answers to my test questions live in the body and the body often never repeats the topic word. Like in `transit_shuttle.txt` where it says "the published timetable is optimistic by about five minutes" without ever saying "shuttle". Without the title, that chunk doesn't come back for a shuttle question.
+
+**Overlap:** None
+
+There is nothing for overlap to rescue. Chunks end where the document ends, so no sentence and no thought gets cut in half. Overlap would only pull in facts from a different post and shift what the chunk is about.
+
+I changed my mind twice here, and the second time is the one that mattered.
+
+I originally wrote 264 as a chunk size because the documents are short and each answer sits in a single sentence, so I thought a tight character window would keep the chunk focused. Anything extra would be a different fact that could pull the answer off course. But as I went along with writing the code I figured it would be more efficient to split by paragraphs. This would actually reduce that chance of the sentence being cut in half, so the size and overlap knobs stopped applying.
+
+Then I printed five chunks and saw that splitting on the paragraphs caused a problem of not having enough context. For example, `housing_morrow_house.txt` resulted in "The good: cheapest housing tier by about $900 a year, and the singles are real singles" as a chunk. It did not have context of "the bad" about the place so it would only ever get one side of it. A dining followup chunk opened with "Also worth saying" which is a continuation of a sentence the retriever would never see just cause this was considered another paragraph. My Milestone 1 read said each paragraph was a self contained fact, and reading the chunks themselves is what showed me that wasn't true. 
+
+So I measured the corpus instead of guessing: 88 documents, median 309 characters, longest 549. Nothing in it is long enough to need splitting at all, so I made the rule one post, one chunk.
+
+Two downsides. No splitting means the few larger documents carry more information than a single question needs like `housing_innisfree_hall.txt` now covers the bathroom arrangement, air conditioning, laundry prices and noise in one chunk. The other is that the seven `_followup` files share nearly all their wording, differing only in the hall name and two facts, so a general dining question could retrieve an arbitrary one of them.
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -53,29 +68,60 @@
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `admin_add_drop_deadline.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
-```
+On the add/drop deadline
 
-**Chunk 2** — source: `` — produced by: ``
-
-```
-```
-
-**Chunk 3** — source: `` — produced by: ``
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
 
 ```
-```
 
-**Chunk 4** — source: `` — produced by: ``
-
-```
-```
-
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 2** — source: `course_biol_160.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
+BIOL 160 Cell Biology
+
+I lived here my sophomore year. Format is lecture three times a week with a weekly lab. Assessment: four unit tests and a cumulative final. Not curved.
+
+Expect 9 to 11 hours a week, the heaviest first-year course by reputation.
+
+The one piece of advice: the unit tests come fast, roughly every three weeks; falling behind once is very hard to recover from.
+```
+
+**Chunk 3** — source: `course_hist_118_workload.txt#0` — produced by: `chunker.py::split_documents`
+
+```
+Workload for HIST 118 Modern World History
+
+People keep asking so: a lot of reading, about 120 pages a week, but no problem sets. That's real time, not optimistic time.
+
+It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
+```
+
+**Chunk 4** — source: `dining_pellew_dining_hall_followup.txt#0` — produced by: `chunker.py::split_documents`
+
+```
+Re: Pellew Dining Hall
+
+Adding to what people have said about Pellew Dining Hall. The wait figure of 12 to 18 minutes at peak matches what I've seen. If you're trying to eat between classes, go before 11:45 and it's a different building entirely.
+
+Also worth saying: the furthest hall from anywhere, next to the athletics centre. Nobody tells you this at orientation.
+```
+
+**Chunk 5** — source: `housing_innisfree_hall.txt#0` — produced by: `chunker.py::split_documents`
+
+```
+Innisfree Hall — what it's actually like
+
+Transferred in last year, so take this with a grain of salt. Built 1991, renovated 2022. Rooms are doubles arranged as pairs sharing one bathroom between two rooms.
+
+The good: the shared-bathroom-between-two-rooms arrangement is the best compromise on campus.
+
+The bad: no air conditioning, which matters for the first three weeks of September.
+
+Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building is L-shaped and the short wing is much quieter.
+
 ```
 
 ## Sample Answer
