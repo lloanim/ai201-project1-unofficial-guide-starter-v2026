@@ -26,6 +26,7 @@
      this repo.
 
      Milestone 5. -->
+For this project I choose to focus on the campus_life corupus. Which answers questions a college student may ask about the new campus they have moved to. It can range from housing and dining questions to course information. 
 
 ## Chunking Strategy
 
@@ -131,19 +132,19 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
 **Question:**
 
-How accurate is the campus stuttle timetable?
+How accurate is the campus shuttle timetable?
 
 **Answer:**
 
 ```
-python app.py ask "How accurate is the campus stuttle timetable?"
-  (best distance 0.482, cutoff 0.65)
+python app.py ask "How accurate is the campus shuttle timetable?"
+  (best distance 0.412, cutoff 0.65)
 
-According to transit_shuttle.txt, the published timetable is optimistic by about five minutes in the morning and accurate the rest of the day.
+According to `transit_shuttle.txt`, the published timetable is optimistic by about five minutes in the morning and accurate the rest of the day.
 
-Sources retrieved: course_cs_210.txt, transit_shuttle.txt, transit_walking.txt
+Sources retrieved: course_stat_150.txt, transit_shuttle.txt, transit_walking.txt
 
-1 model calls this session, 468 tokens (439 in, 29 out)
+1 model calls this session, 455 tokens (425 in, 30 out)
 ```
 
 **My relevance cutoff:**
