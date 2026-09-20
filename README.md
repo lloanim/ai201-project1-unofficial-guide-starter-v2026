@@ -26,7 +26,7 @@
      this repo.
 
      Milestone 5. -->
-For this project I choose to focus on the campus_life corupus. Which answers questions a college student may ask about the new campus they have moved to. It can range from housing and dining questions to course information. 
+For this project I choose to focus on the campus_life corupus, which answers questions a college student may ask about the new campus they have moved to. It can range from housing and dining questions to course information where you would like to ask a student. For example, "Is there a penalty for declaring my major late?". The system searches through 88 documents, answering using only the ones it retrieves, and names the files each answer came from. If the documents do not cover the question, it refuses instead of guessing. 
 
 ## Chunking Strategy
 
@@ -192,7 +192,12 @@ I set top_k = 3 because after the third chunk there was a clear difference in di
 
 **1.**
 
+I found AI helpful in working out what my criteria should be. For my last criterion I had thought that just having the question's expects string in the final was good. But I had to go back and forth about three times before I finalized it, and I asked questions back on its reasoning each time rather than just accepting its suggestions. Two things came out of that. First was that it pointed out that my criterion overlapped with the first one unless I was explicit that this one checks the fact surviving generation, not just retrieval. The other was that it got me thinking about which expects strings could actually be matched literally. Shorter ones are more likely than the longer phrases. That is why it help me add that missing factor of set it at 4 of 5 instead of 5 that I expect one of the questions to miss on wording. 
+
 **2.**
+
+Another time AI helped was in Milestone 3, where I started from my Milestone 1 notes on the corpus. I had written down that the documents were short and that splitting on character count would be best. But as I was changing the structure of `split_documents` function, I figured paragraph splitting would be more reliable at not cutting sentences midway. When I tested it, the paragraph chunks came out too short, where a single post got broken into pieces that no longer had the full context needed to answer the question accurately. As I went along I had AI reason through what I was thinking and suggest what could go wrong, which pushed me to check the actual numbers of 88 documents with median of 309 characters and longest 549. Nothing was close to needing a split. So I changed my strategy to one document, one chunk, and `split_documents` now returns each document as a single chunk.  
+
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
