@@ -215,15 +215,97 @@ Another time AI helped was in Milestone 3, where I started from my Milestone 1 n
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Every chunk begins with its document's title line | All chunks | 88/88 | 88/88 | 88/88 | MET |
+| 5. The system's final answer contains the question's expects string, not just the retrieved chunks | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+**Criterion 1**: Retrieved chunk contains the answer
+- Produced by: `run_eval.py::main`
+- Retrieval: `store.py::search`, chunks from `chunker.py::split_documents`
+
+```
+### What do I neeed to do to get the campus store to match a lower price? — run 1
+- Best distance: 0.4844 (passed the gate)
+- Sources retrieved: admin_printing_quota.txt, housing_fenwick_court.txt, money_textbooks.txt
+
+To get the campus store to price-match, you have to ask at the counter and show the other listing on your phone (source: money_textbooks.txt).
+```
+
+**Criterion 2**: Every answer names a source
+- Produced by: `run_eval.py::main`
+- Retrieval: `store.py::search`, chunks from `chunker.py::split_documents`
+
+```
+### How accurate is the campus shuttle timetable? — run 1
+
+The published timetable is optimistic by about five minutes in the morning and accurate the rest of the day. 
+
+Source: transit_shuttle.txt
+```
+
+**Criterion 3**: Gate stops out-of-corpus questions
+- Produced by `run_eval.py::check_out_of_scope`, cutoff 0.65. Refused 5 of 5.
+
+```
+| Out-of-scope question | Best distance | Gate |
+|---|---|---|
+| What is the capital of Mongolia? | 0.825 | refused |
+| How do I change the oil in a diesel engine? | 0.934 | refused |
+| Who won the 1994 World Cup? | 0.886 | refused |
+| What is the recommended dosage of ibuprofen for a headache? | 0.844 | refused |
+| How do I write a for loop in Rust? | 0.896 | refused |
+
+```
+
+**Criterion 4**: Every chunk begins with its document's title line
+
+- Produced by `chunker.py::split_documents`, printed by `python app.py chunks --from-doc money_textbooks.txt`. 
+
+The title line is the first line of the chunk:
+```
+Chunk 1  |  source: money_textbooks.txt#0  |  produced by: chunker.py::split_documents
+
+Textbooks without paying full price
+
+The library holds one copy of most required texts on two-hour reserve. For courses where the text is used constantly that isn't enough, but for the reading-light courses it's genuinely all you need.
+
+The campus store price-matches, which is not advertised anywhere and you have to ask at the counter with the other listing on your phone.
+```
+
+Rather than sample, I checked all 88 chunks against the raw files in
+`corpora/campus_life/documents/`, comparing each chunk's first non-empty line to
+the first non-empty line of its source file on disk:
+
+```
+88 of 88 chunks begin with their document's title line
+```
+
+**Criterion 5**: The system's final answer contains the question's expects string, not just the retrieved chunks
+
+- Judged by `scorer.py::judge`, a case-insensitive substring test of the `expects`string in `questions.py` against the final answer from `generate.py::answer_from_chunks`.
+- Produced by: `run_eval.py::main`
+
+Expects for question 3: "travels with you"
+```
+### Can my financial aid help cover the costs of studying abroad? — run 1
+
+Yes, your financial aid package travels with you when you study abroad. (Source: admin_study_abroad.txt)
+```
+
+Expects for question 1: "ask at the counter"
+```
+### What do I neeed to do to get the campus store to match a lower price? — run 1
+
+To get the campus store to price-match, you have to ask at the counter and show the other listing on your phone (source: money_textbooks.txt).
+```
+
+These are the two I predicted in `criteria.md` would be paraphrased away. Both survived verbatim in all three runs.
 
 ## Verdicts
 
