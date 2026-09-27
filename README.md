@@ -324,8 +324,7 @@ These are the two I predicted in `criteria.md` would be paraphrased away. Both s
 | 2 | Every answer names a source | MET | When the answer is given at the end it states: "Source: " with the document with the answer. |
 | 3 | Gate stops out-of-corpus questions | MET | One deterministic pass through `run_eval::check_out_of_scope` at cutoff 0.65. All five refused, with distances 0.825-0.934, showing no near misses. The ibuprofen |
 | 4 | Every chunk begins with its document's title line. | MET | `split_documents` emits one chunk per document with no splitting. So each chunk's first line is the document's first line which is the title. Confirmed across all 88 chunks. |
-| 5 | For at least 4 of 5 questions, the system's final answer contains the question's expects string, not just the retrieved chunks. | MET | `scorer.py::judge` matched 5 of 5 in all three runs, substring testing each question's expects against the final answer from `generate.py::answer_from_chunks`. 
-I set it at 4 because I expected "ask at the counter" or "travels with you" to be paraphrased away but both survived the runs. |
+| 5 | For at least 4 of 5 questions, the system's final answer contains the question's expects string, not just the retrieved chunks. | MET | `scorer.py::judge` matched 5 of 5 in all three runs, substring testing each question's expects against the final answer from `generate.py::answer_from_chunks`. I set it at 4 because I expected "ask at the counter" or "travels with you" to be paraphrased away but both survived the runs. |
 
 ## Diagnoses
 
@@ -346,6 +345,24 @@ I set it at 4 because I expected "ask at the counter" or "travels with you" to b
      low, and which one you'd tighten and to what.
 
      Milestone 3. -->
+
+My test did not miss anything. All five criteria came out 5 of 5 on all three runs, and three of them were written with a target of 4 of 5, so it cleared more than expect. However, that is not a result on the system working rather on how I set the targets. So the test here is on the quality of the criteria rather than the pipeline. 
+
+
+**Criterion 4 could not fail**: Every document in the corpus contains a title line, a blank line, and the body. The function `split_documents` returns each document as one chunk without altering the text. Those two facts together means that there is no input on which "every chunk begiins with its document's title line" comes out false. I wrote it in unit 1 while I was still planning to chunk on paragraphs, where every chunk after the first would have lost the title line and it would have been a real test. When I switched to one docuument per chunk iin Milestone 3 of Unit 1, I did not go back and check what that did to the criterion. So 88/88 three times over measured nothing at all. 
+
+
+**Criterion 3 is set on a low bar**: This criterion could have failed if my cutoff were in the wrong place. The gate would have let a question through. The closest out-of-scope question was 0.8246 against the cutoff of 0.65 with a margin of 0.17. The ibuprofen question I predicted in `criteria.md` would sit near the line actually landed at 0.8442, nowhere near it. Retrieval is deterministic and the gate is a comparison agains a fixed number, so nothing here varies between the runs. Giving away a whole question of slack on a measurement that cannot move is what made it easy, and the size of the margin is the evidence that 5 of 5 was reachable the whole time.
+
+**Criterion 5 is the one I would defend**: I do not think this target was set too low. Generation is the one stage in the pipeline that varies, and the runs shows it varying. For example the price-matching answer came out as "you have to ask at the counter and show the other listing on your phone" in run 1 and "you need
+to ask at the counter and show the other listing on your phone" in run 2. The sentence was rebuilt each run and the expects string survived it. I set 4 of 5 because I expected either "ask at the counter" or "travels with you" to get paraphrased. One unlucky rewording would have made that prediction right but did not happen across the three runs. This tells me the phrases are sturdier than I thought, not that the bar was one I could not miss. 
+
+
+**The pattern**: Three of my five criteria lean on stages that cannot vary. The corupus documents have a uniform structure, chunking does not split the text, and the gate is at a fixed threshold, so criterion 4 holds by construction. Criterion 3 is a comparison on a result that was fixed before I ran anything. Mean while the real risk of my design is the embedding and retrieval, where one document includes the paragraphs that have nothing to do with the question. Criterion 1 only asks for the answer to appear in the top 3 of 88 documents which sets a generous bar and results in all three runs looking identical even on questions that should be harder. Criteria 2 and 5 are the exceptions, and they are the only two aimed at a stage that moves.
+
+
+**What I tightened**: Criterion 4 is revised in `criteria.md` to be "For at least 4 of 5 test questions, the first ranked retrieved chunk is the one containing the answer.". This turns the criterion iinto a test of whether whole document embeddings dilute the right document's vector enough for an off topic document to take the top spot. This is the failure my chunking decision actually risks in doing. Ii expect the price-matching question to be the one that loses rank 1 because its answerng sentence is one of three paragraphs in `money_textbooks.txt` and the other two paragraphs are on library reserve copies, while 17 of 88 documents mention price or cost. 
+
 
 ## The Improvement
 
