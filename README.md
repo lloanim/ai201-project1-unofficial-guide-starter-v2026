@@ -320,11 +320,12 @@ These are the two I predicted in `criteria.md` would be paraphrased away. Both s
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | I verified that on the three runs for each question, the answer is in the retrieved chunk. |
+| 2 | Every answer names a source | MET | When the answer is given at the end it states: "Source: " with the document with the answer. |
+| 3 | Gate stops out-of-corpus questions | MET | One deterministic pass through `run_eval::check_out_of_scope` at cutoff 0.65. All five refused, with distances 0.825-0.934, showing no near misses. The ibuprofen |
+| 4 | Every chunk begins with its document's title line. | MET | `split_documents` emits one chunk per document with no splitting. So each chunk's first line is the document's first line which is the title. Confirmed across all 88 chunks. |
+| 5 | For at least 4 of 5 questions, the system's final answer contains the question's expects string, not just the retrieved chunks. | MET | `scorer.py::judge` matched 5 of 5 in all three runs, substring testing each question's expects against the final answer from `generate.py::answer_from_chunks`. 
+I set it at 4 because I expected "ask at the counter" or "travels with you" to be paraphrased away but both survived the runs. |
 
 ## Diagnoses
 
