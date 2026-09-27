@@ -187,6 +187,11 @@ I found AI helpful in working out what my criteria should be. For my last criter
 
 Another time AI helped was in Milestone 3, where I started from my Milestone 1 notes on the corpus. I had written down that the documents were short and that splitting on character count would be best. But as I was changing the structure of `split_documents` function, I figured paragraph splitting would be more reliable at not cutting sentences midway. When I tested it, the paragraph chunks came out too short, where a single post got broken into pieces that no longer had the full context needed to answer the question accurately. As I went along I had AI reason through what I was thinking and suggest what could go wrong, which pushed me to check the actual numbers of 88 documents with median of 309 characters and longest 549. Nothing was close to needing a split. So I changed my strategy to one document, one chunk, and `split_documents` now returns each document as a single chunk.  
 
+**Unit 2**
+
+**3.**
+
+AI helped me a lot in understanding the aspects of this unit. I had some difficulty understanding the instructions or had interpeted it differently than what was stated. But not all the suggestions it made was reasonable. For example, in Milestone 2 I had asked it if my revised reasoning made sense. I gave the explaination of why I chose 4 of 5 for the revision of criterion 4 but did not catch an issue with my reasoning that I realized later. It was telling me that I was right in that the question I had made for price-matching had no words that can be found in the title line. But in reality it did have one word in similarity which is "price". So I had to follow up saying that it was wrong and that it did have one word that in connection which had stated that it did overstate. Overall, throughout my use of AI, I had to ask follow up question to make sure I am understanding the reasonings it gave. On occasion correcting itself when I realized/mentioned something was overlooked. 
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
@@ -414,9 +419,17 @@ One thing that did go wrong was the distance change on the out-of-scope question
 
      Milestone 5. -->
 
+Criterion 4 is still broken because even though it reads as MET at 183/183, the number measures nothing. In the new `split_documents` iit prepends the title to the chunk. So every chunk begins with its title by construction. The chunking change made the denominatore bigger without making the criterion falsifiable. What would fix it is the revision I made for it in `criteria.md` which involves ranking the retrieved documents. Ideally the first retrieved document would be the one with the answer. I did not implement this because it would involve more than one change contradicting the task of milestone 4. 
+Criterion 3 is also still weak, for the reason I gave in my diagnosis. The gate refused 5 of 5 both times, but the nearest out-of-scope question sits 0.137 from the cutoff, so the measurement has never been close to its own boundary. It would take an out-of-scope question that genuinely resembles the corpus to test it, and the five I have are from an entirely of topic. 
+The gate's margin is the one thing my change made worse. In scope and out-of-scope distances both came down, so the space on the false/accept side went from 0.175 to 0.137. I left the cutoff at 0.65 rather than retune it, because that also would have been another change. 
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+
+I would rewrite criterion 4 as a ranking on retrieval documents like I had written in `criteria.md`. I had made the chunking system to a structure that caused this criterion, to not be able to measure anything. It is something I did not realize would be an issue in Unit 1 because I had written the criterion first before I had changed my reasoning on the chunking strategy. 
+I would also tighten criterion 1 because having the answer appear in top 3 of 88 documents, is a generous bar that caused it to result in 5/5 before and after the change. It could not distinguish the change in chunking strategy, one that works and one that is better. 
+The pattern behind both is what I mention in the diagnosis. The criteria I wrote against stages, that cannot vary. Chunking is deterministic, the gate is a comparison against a fixed number, and all the documents in the corpus are structured the same. If I were to start agian I would think on each criterion, "is there an input where the result is false" before writing the target, and get rid of the ones I could not answer. 
