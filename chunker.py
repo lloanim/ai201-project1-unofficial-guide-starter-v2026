@@ -22,6 +22,7 @@ to it, write down what you saw, and move on. That's a real observation about
 your pipeline, not giving up.
 """
 
+import re
 from dataclasses import dataclass
 
 import config
@@ -97,11 +98,19 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
       - Would splitting on paragraph breaks keep more thoughts intact than
         splitting on a character count?
 
-    What I went with: one post, one chunk.
+    What I went with for Unit 2: one paragraph, one chunk, with the document's title line
+    prepended to every chunk.
 
-    These documents are short posts in total 88 of them. The median is 309
-    characters with the longest being 549. Nothing is close to needing a split.
+    In unit 1 went the other way with one document being one chunk. A whole document 
+    embeds as the average of everything in it. So money_textbooks.txt embeds as two 
+    paragraphs about library reserve copies plus one about price-matching, and the 
+    price-match question has to beat every other document that mentions price or 
+    cost while carrying two paragraphs of unrelated text.
 
+    Plain paragraph splitting failed in Milestone 3 for a different reason. It
+    produced chunks that did not give full context needed to answer the question. 
+    Prepending the title is what fixes that issue, which is why this is paragraph
+    splitting with the title rather than paragraph splitting.
     """
     chunks: list[Chunk] = []
 
@@ -110,14 +119,23 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
         if not text:
             continue
 
-        chunks.append(
-            Chunk(
-                text=text,
-                source=doc.source,
-                index=0,
-                produced_by="chunker.py::split_documents",
+        lines = text.split("\n")
+        title = lines[0].strip()
+        body = "\n".join(lines[1:]).strip()
+
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", body) if p.strip()]
+        if not paragraphs:
+            paragraphs = [""]
+
+        for index, paragraph in enumerate(paragraphs):
+            chunks.append(
+                Chunk(
+                    text=f"{title}\n\n{paragraph}".strip(),
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
             )
-        )
 
     return chunks
 

@@ -368,10 +368,14 @@ to ask at the counter and show the other listing on your phone" in run 2. The se
 
 **What I changed:**
 
+I changed `split_documents` function to split on paragraphs and prepend the document's title line to every chunk. The corpus went from 88 chunks to 183. 16 documents stayed as one chunk (smaller documents or one paragraph documents), 56 split into two, 9 into three, and 7 into four. 
+
 **Why I picked it:**
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
+
+My diagnosis said that the real risk in my design was embedding and retrieval, where one document being a chunk carries paragraphs that have nothing to do with the question. For example, `money_textbooks.txt` where the price-matching answer sentence is alongside two paragraphs about library reserve copies. Paragraph splitting is the dirstt test of that, and the title lne is prepended because Milestone 3 in Unit 1 already showed me what plain paragraph splitting costs which is more context. For example, a chunk reading "Also worth saying: the furthest hall from anywhere..." never names Pellew in `dining_pellow_dining_hall_followup.txt` so it never comes back for a Pellew question. This is one change that tests the dilution claim without giving up the thing Unit 1 got right. 
 
 ### Run Log — After
 
@@ -380,11 +384,11 @@ to ask at the counter and show the other listing on your phone" in run 2. The se
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Every chunk begins with its document's title line | All chunks | 183/183 | 183/183 | 183/183 | MET |
+| 5. The system's final answer contains the question's expects string, not just the retrieved chunks | 4/5 | 5/5 | 5/5 | 5/5 | MET |
 
 **Did it help?**
 
@@ -394,6 +398,11 @@ to ask at the counter and show the other listing on your phone" in run 2. The se
      tell.
 
      Milestone 4. -->
+
+It did help on retrieval distance but not on my criteria. All five came out as before 5/5 on all three runs. This is because I changed on chunking strategy which criterias 2, 3, and 5 do not concern on. Criterion 1 only asks that the answer be in any of the top three of the 88 documents, which it does. The run log was not going to move based on what I had mention in Diagnoses, on how I wrote the targets. 
+The distances that did move was for questions 1, 2, and 4. With 1 decreasing by 0.085, question 2 decreased by 0.168, and question 4 by 0.220. Both questions 3 and 5 stayed the same because `admin_study_abroad.txt` and `admin_declaring_a_major.txt` had a single body. So the body plus the appended title line is just the document itself. For the other questions where there was paragraph splitting, the decrease in distance shows that the precision was one of the downsides of chunking the whole document. 
+One thing that did go wrong was the distance change on the out-of-scope questions lowering as well. For example, the Mongolia question going from 0.825 to 0.787 and the World Cup question going from 0.886 to 0.847. The gap of narrowed from 0.340 to 0.317 and the range being from 0.470 to 0.787. That puts the midpoint at 0.629. My cutoff of 0.65 is still in the gap but now sits closer to the out-of-scope side, letting questions that are out-of-scope to slip in more. 
+
 
 ## What's Still Broken
 
